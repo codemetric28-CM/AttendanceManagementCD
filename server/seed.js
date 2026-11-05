@@ -31,28 +31,7 @@ async function seedDatabase() {
       phone: '9699056940',
       join_date: '2026-07-13'
     },
-    {
-      employee_id: 'EMP002',
-      name: 'Michael Chen',
-      email: 'emp2@office.com',
-      password_hash: emp_pw,
-      role: 'employee',
-      department: 'Marketing',
-      designation: 'Marketing Specialist',
-      phone: '9876543212',
-      join_date: '2024-03-01'
-    },
-    {
-      employee_id: 'EMP003',
-      name: 'David Smith',
-      email: 'emp3@office.com',
-      password_hash: emp_pw,
-      role: 'employee',
-      department: 'Human Resources',
-      designation: 'HR Coordinator',
-      phone: '9876543213',
-      join_date: '2024-04-10'
-    }
+   
   ];
 
   for (const u of users_data) {
