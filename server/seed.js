@@ -5,34 +5,34 @@ const Break = require('./models/Break');
 const Leave = require('./models/Leave');
 
 async function seedDatabase() {
-  // const admin_pw = await bcrypt.hash('Prathmesh@1234', 10);
-  // const emp_pw = await bcrypt.hash('Emp@123', 10);
+  const admin_pw = await bcrypt.hash('Prathmesh@1234', 10);
+  const emp_pw = await bcrypt.hash('Emp@123', 10);
 
-  // const users_data = [
-  //   {
-  //     employee_id: 'ADM001',
-  //     name: 'Prathmesh',
-  //     email: 'prathmesh@office.com',
-  //     password_hash: admin_pw,
-  //     role: 'admin',
-  //     department: 'Management',
-  //     designation: 'Lead Admin',
-  //     phone: '9876543210',
-  //     join_date: '2024-01-01'
-  //   },
-  //   {
-  //     employee_id: 'EMP001',
-  //     name: 'Sagar M ',
-  //     email: 'sagar@office.com',
-  //     password_hash: emp_pw,
-  //     role: 'employee',
-  //     department: 'General',
-  //     designation: 'Python Developer',
-  //     phone: '9699056940',
-  //     join_date: '2026-07-13'
-  //   },
+  const users_data = [
+    {
+      employee_id: 'ADM001',
+      name: 'Prathmesh',
+      email: 'prathmesh@office.com',
+      password_hash: admin_pw,
+      role: 'admin',
+      department: 'Management',
+      designation: 'Lead Admin',
+      phone: '9876543210',
+      join_date: '2024-01-01'
+    },
+    {
+      employee_id: 'EMP001',
+      name: 'Sagar M ',
+      email: 'sagar@office.com',
+      password_hash: emp_pw,
+      role: 'employee',
+      department: 'General',
+      designation: 'Python Developer',
+      phone: '9699056940',
+      join_date: '2026-07-13'
+    },
    
-  // ];
+  ];
 
   for (const u of users_data) {
     const existing = await User.findOne({ employee_id: u.employee_id });
