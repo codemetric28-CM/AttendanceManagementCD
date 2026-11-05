@@ -1,4 +1,5 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../utils/api';
 
 const AuthContext = createContext(null);
@@ -7,6 +8,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -43,13 +45,13 @@ export function AuthProvider({ children }) {
     return res;
   };
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('jwt_token');
     fetch('/api/auth/logout', { method: 'POST' }).finally(() => {
       setUser(null);
-      window.location.href = '/login';
+      navigate('/login', { replace: true });
     });
-  };
+  }, [navigate]);
 
   return (
     <AuthContext.Provider value={{ user, setUser, loading, theme, toggleTheme, login, logout }}>
