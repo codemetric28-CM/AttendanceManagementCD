@@ -5,8 +5,8 @@ const Break = require('./models/Break');
 const Leave = require('./models/Leave');
 
 async function seedDatabase() {
-  const admin_pw = await bcrypt.hash('Prathmesh@1234', 10);
-  const emp_pw = await bcrypt.hash('Emp@123', 10);
+  // const admin_pw = await bcrypt.hash('Prathmesh@1234', 10);
+  // const emp_pw = await bcrypt.hash('Emp@123', 10);
 
   // const users_data = [
   //   {
