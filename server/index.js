@@ -46,6 +46,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/employee', employeeRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin/export', reportsRoutes);
+app.use('/api/employee/export', reportsRoutes); // employee self-export (employee-excel / employee-pdf)
 
 // Serve React build in production
 const clientDist = path.join(__dirname, '../client/dist');
