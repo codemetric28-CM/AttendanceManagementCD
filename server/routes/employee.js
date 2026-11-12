@@ -146,7 +146,7 @@ router.post('/check-out', jwtRequired('employee'), async (req, res) => {
       return res.status(400).json({ error: 'Please end your active break before checking out!' });
     }
 
-    const checkInDt = new Date(att.check_in.replace(' ', 'T'));
+    const checkInDt = new Date(att.check_in.replace(' ', 'T') + '+05:30');
     const total_hours = Math.round(((now - checkInDt) / 3600000) * 100) / 100;
     const break_mins = att.break_duration_mins || 0;
     let net_hours = Math.round((total_hours - break_mins / 60.0) * 100) / 100;
@@ -237,7 +237,7 @@ router.post('/break/end', jwtRequired('employee'), async (req, res) => {
       return res.status(400).json({ error: 'No active break found to end' });
     }
 
-    const startDt = new Date(activeBreak.start_time.replace(' ', 'T'));
+    const startDt = new Date(activeBreak.start_time.replace(' ', 'T') + '+05:30');
     const duration_mins = Math.max(1, Math.floor((now - startDt) / 60000));
 
     activeBreak.end_time = nowStr;
