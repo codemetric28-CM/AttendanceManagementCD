@@ -51,12 +51,9 @@ app.use('/api/employee/export', reportsRoutes); // employee self-export (employe
 // Serve React build in production
 const clientDist = path.join(__dirname, '../client/dist');
 app.use(express.static(clientDist));
-app.use((req, res, next) => {
-  if (req.path.startsWith('/api')) return next();
-  const indexHtml = path.join(clientDist, 'index.html');
-  res.sendFile(indexHtml, (err) => {
-    if (err) next();
-  });
+// SPA fallback — serve index.html for all non-API routes
+app.use((req, res) => {
+  res.sendFile(path.join(clientDist, 'index.html'));
 });
 
 async function start() {
