@@ -49,11 +49,23 @@ app.use('/api/admin/export', reportsRoutes);
 app.use('/api/employee/export', reportsRoutes); // employee self-export (employee-excel / employee-pdf)
 
 // Serve React build in production
+const fs = require('fs');
 const clientDist = path.join(__dirname, '../client/dist');
+const indexHtml = path.join(clientDist, 'index.html');
+
+console.log('[STATIC] clientDist =', clientDist);
+console.log('[STATIC] index.html exists =', fs.existsSync(indexHtml));
+
 app.use(express.static(clientDist));
+
 // SPA fallback — serve index.html for all non-API routes
 app.use((req, res) => {
-  res.sendFile(path.join(clientDist, 'index.html'));
+  console.log('[SPA fallback] path =', req.path, '| file exists =', fs.existsSync(indexHtml));
+  if (fs.existsSync(indexHtml)) {
+    res.sendFile(indexHtml);
+  } else {
+    res.status(503).send('App not built. Run: npm run build --prefix client');
+  }
 });
 
 async function start() {
