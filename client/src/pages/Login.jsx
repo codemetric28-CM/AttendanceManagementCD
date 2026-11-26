@@ -64,7 +64,7 @@ export default function Login() {
     setLoading(true);
     setError("");
     const id = demoRole === "admin" ? "ADM001" : "EMP001";
-    const pass = demoRole === "admin" ? "Admin@123" : "Emp@123";
+    const pass = demoRole === "admin" ? "Prathmesh@1234" : "Emp@123";
     try {
       const res = await login(id, pass);
       const user = res?.user || res;
