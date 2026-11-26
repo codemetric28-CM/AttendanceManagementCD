@@ -46,12 +46,17 @@ router.get('/dashboard-summary', jwtRequired('employee'), async (req, res) => {
     const todayAtt = await Attendance.findOne({ user_id: userId, date: todayStr });
     let activeBreak = null;
 
+    // Fetch ALL of today's breaks (completed + ongoing)
+    let today_breaks = [];
     if (todayAtt) {
       const brk = await Break.findOne({
         attendance_id: todayAtt._id,
         status: 'ongoing'
       }).sort({ _id: -1 });
       if (brk) activeBreak = formatBreak(brk);
+
+      const allBreaks = await Break.find({ attendance_id: todayAtt._id }).sort({ _id: 1 });
+      today_breaks = allBreaks.map(formatBreak);
     }
 
     const monthAtts = await Attendance.find({
@@ -72,6 +77,7 @@ router.get('/dashboard-summary', jwtRequired('employee'), async (req, res) => {
     return res.status(200).json({
       today: formatAttendance(todayAtt),
       active_break: activeBreak,
+      today_breaks,
       monthly_stats,
       pending_leaves
     });

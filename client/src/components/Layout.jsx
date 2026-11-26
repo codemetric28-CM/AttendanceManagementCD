@@ -1,89 +1,102 @@
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const titles = {
-  '/dashboard': 'Attendance Dashboard',
-  '/attendance': 'Attendance Log & History',
-  '/leaves': 'Leave Management',
-  '/employees': 'Employee Management',
-  '/reports': 'Reports & Data Exports',
-  '/profile': 'User Profile & Security'
-};
-
 export default function Layout() {
-  const { user, logout, theme, toggleTheme } = useAuth();
-  const location = useLocation();
-  const headerTitle = titles[location.pathname] || 'Dashboard';
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const isAdmin = user?.role === 'admin';
 
+  const greeting = () => {
+    const h = new Date().getHours();
+    if (h < 12) return 'Good Morning';
+    if (h < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
   return (
-    <div className="app-container">
-      <aside className="sidebar" id="app-sidebar">
-        <div className="sidebar-header">
-          <div className="brand-logo">A</div>
-          <div className="brand-title">
-            AttendX<span style={{ color: 'var(--primary)' }}>.io</span>
-          </div>
+    <div className="cm-app">
+      {/* ── Sidebar ── */}
+      <aside className="cm-sidebar">
+        {/* Logo */}
+        <div className="cm-logo">
+          <img src="/logo.webp" alt="CodeMetric" className="cm-logo-img" />
+          <span className="cm-logo-text">CodeMetric</span>
         </div>
 
-        <nav className="sidebar-nav">
-          <NavLink to="/dashboard" className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}>
-            <i className="ri-dashboard-3-line"></i> <span>Dashboard</span>
+        {/* Nav */}
+        <nav className="cm-nav">
+          <NavLink to="/dashboard" className={({ isActive }) => `cm-nav-item${isActive ? ' active' : ''}`}>
+            <i className="ri-home-5-line"></i>
+            <span>Home</span>
           </NavLink>
-          <NavLink to="/attendance" className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}>
-            <i className="ri-calendar-check-line"></i> <span>Attendance Log</span>
+          <NavLink to="/attendance" className={({ isActive }) => `cm-nav-item${isActive ? ' active' : ''}`}>
+            <i className="ri-calendar-check-line"></i>
+            <span>Attendance</span>
           </NavLink>
-          <NavLink to="/leaves" className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}>
-            <i className="ri-flight-takeoff-line"></i> <span>Leaves</span>
+          <NavLink to="/leaves" className={({ isActive }) => `cm-nav-item${isActive ? ' active' : ''}`}>
+            <i className="ri-leaf-line"></i>
+            <span>Leave</span>
           </NavLink>
           {isAdmin && (
-            <NavLink to="/employees" className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}>
-              <i className="ri-team-line"></i> <span>Employees</span>
+            <NavLink to="/employees" className={({ isActive }) => `cm-nav-item${isActive ? ' active' : ''}`}>
+              <i className="ri-team-line"></i>
+              <span>Employees</span>
             </NavLink>
           )}
           {isAdmin && (
-            <NavLink to="/reports" className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}>
-              <i className="ri-file-chart-line"></i> <span>Reports & Export</span>
+            <NavLink to="/reports" className={({ isActive }) => `cm-nav-item${isActive ? ' active' : ''}`}>
+              <i className="ri-file-chart-line"></i>
+              <span>Reports</span>
             </NavLink>
           )}
-          <NavLink to="/profile" className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}>
-            <i className="ri-user-settings-line"></i> <span>My Profile</span>
+          <NavLink to="/profile" className={({ isActive }) => `cm-nav-item${isActive ? ' active' : ''}`}>
+            <i className="ri-settings-4-line"></i>
+            <span>Settings</span>
           </NavLink>
         </nav>
 
-        <div className="sidebar-footer">
-          <div className="user-profile-badge">
-            <div className="user-avatar user-avatar-display">
-              {user?.name?.charAt(0)?.toUpperCase() || 'U'}
-            </div>
-            <div className="user-info">
-              <div className="user-name user-name-display">{user?.name || 'Loading...'}</div>
-              <div className="user-role user-role-display">
-                {user ? `${user.department} • ${user.role.toUpperCase()}` : 'Staff'}
-              </div>
-            </div>
+        {/* User profile at bottom */}
+        <div className="cm-sidebar-user">
+          <div className="cm-user-avatar-sm">
+            {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+          </div>
+          <div className="cm-user-meta">
+            <div className="cm-user-name-sm">{user?.name || 'User'}</div>
+            <div className="cm-user-role-sm">{user?.role === 'admin' ? 'Administrator' : 'Employee'}</div>
           </div>
         </div>
       </aside>
 
-      <main className="main-wrapper">
-        <header className="top-header">
-          <div className="header-left">
-            <h2>{headerTitle}</h2>
+      {/* ── Main Area ── */}
+      <div className="cm-main">
+        {/* Top Header */}
+        <header className="cm-header">
+          <div className="cm-header-left">
+            <h1 className="cm-greeting">{greeting()}, {user?.name?.split(' ')[0] || 'User'}</h1>
+            <p className="cm-greeting-sub">Let&apos;s make today a productive day!!</p>
           </div>
-          <div className="header-right">
-            <button className="theme-toggle-btn" onClick={toggleTheme} title="Toggle Light/Dark Theme">
-              <i className={theme === 'dark' ? 'ri-sun-line' : 'ri-moon-line'}></i>
+          <div className="cm-header-right">
+            <div className="cm-search-box">
+              <i className="ri-search-line"></i>
+              <input type="text" placeholder="Search employees, leaves, payroll..." readOnly />
+            </div>
+            <button className="cm-icon-btn" title="Notifications">
+              <i className="ri-notification-3-line"></i>
             </button>
-            <button className="btn-logout" onClick={logout}>
-              <i className="ri-logout-box-r-line"></i> Logout
+            <button className="cm-avatar-btn" onClick={() => navigate('/profile')}>
+              {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+            </button>
+            <button className="cm-logout-btn" onClick={logout} title="Logout">
+              <i className="ri-logout-box-r-line"></i>
             </button>
           </div>
         </header>
-        <div className="content-body">
+
+        {/* Page Content */}
+        <div className="cm-content">
           <Outlet />
         </div>
-      </main>
+      </div>
     </div>
   );
 }
