@@ -1438,3 +1438,468 @@ button:disabled {
   font-weight: 600;
   margin-top: 2px;
 }
+
+
+/* ============================================================
+   PEOPLEFLOW / CODEMETRIC NEW LOGIN PAGE DESIGN
+   ============================================================ */
+
+.pf-login-page {
+  min-height: 100vh;
+  width: 100%;
+  background: radial-gradient(circle at 20% 30%, #0d1b3e 0%, #080f24 60%, #050a18 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 3rem 2rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  box-sizing: border-box;
+}
+
+.pf-bg-glow-1 {
+  position: absolute;
+  top: -15%;
+  left: -10%;
+  width: 55vw;
+  height: 55vw;
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.14) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.pf-bg-glow-2 {
+  position: absolute;
+  bottom: -20%;
+  right: -10%;
+  width: 50vw;
+  height: 50vw;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.18) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.pf-login-container {
+  max-width: 1140px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1.15fr 0.95fr;
+  gap: 3.5rem;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Left Hero Side ── */
+.pf-hero-col {
+  display: flex;
+  flex-direction: column;
+  padding-right: 1rem;
+}
+
+.pf-brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2.25rem;
+}
+
+.pf-brand-img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.pf-brand-name {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.pf-hero-heading {
+  font-size: 3.1rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.15rem;
+}
+
+.pf-hero-desc {
+  font-size: 1.05rem;
+  color: #94a3b8;
+  line-height: 1.55;
+  max-width: 440px;
+  margin-bottom: 1.75rem;
+}
+
+.pf-feature-pills {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-bottom: 1.75rem;
+}
+
+.pf-feature-pill {
+  background: rgba(30, 41, 59, 0.65);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  color: #cbd5e1;
+  border-radius: 12px;
+  padding: 0.6rem 1.15rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: fit-content;
+  backdrop-filter: blur(10px);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.pf-feature-pill:hover {
+  transform: translateX(4px);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #ffffff;
+}
+
+.pf-feature-pill i {
+  font-size: 1.1rem;
+  color: #38bdf8;
+}
+
+.pf-illustration-wrapper {
+  width: 100%;
+  max-width: 460px;
+  margin-top: 0.5rem;
+}
+
+.pf-isometric-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.45));
+}
+
+/* ── Right Card Side ── */
+.pf-form-col {
+  display: flex;
+  justify-content: center;
+}
+
+.pf-card {
+  background: #ffffff;
+  border-radius: 28px;
+  padding: 2.75rem 2.5rem;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.55), 0 0 1px rgba(255, 255, 255, 0.2);
+  width: 100%;
+  max-width: 440px;
+  color: #0f172a;
+  box-sizing: border-box;
+}
+
+.pf-card-title {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: #0f172a;
+  text-align: center;
+  margin-bottom: 0.35rem;
+  letter-spacing: -0.025em;
+}
+
+.pf-card-subtitle {
+  font-size: 0.92rem;
+  color: #64748b;
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+/* ── Segmented Control Tabs ── */
+.pf-role-selector {
+  background: #f1f5f9;
+  border-radius: 9999px;
+  padding: 4px;
+  display: flex;
+  gap: 4px;
+  margin-bottom: 1.75rem;
+}
+
+.pf-role-tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 0.65rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+}
+
+.pf-role-tab i {
+  font-size: 1.05rem;
+}
+
+.pf-role-tab.active {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  font-weight: 700;
+}
+
+/* ── Form Inputs ── */
+.pf-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.pf-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.pf-label {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.pf-input {
+  width: 100%;
+  padding: 0.85rem 1.1rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 0.92rem;
+  color: #0f172a;
+  background: #ffffff;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.pf-input::placeholder {
+  color: #94a3b8;
+}
+
+.pf-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.pf-password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.pf-password-input {
+  padding-right: 3rem;
+}
+
+.pf-password-toggle {
+  position: absolute;
+  right: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  transition: color 0.15s;
+}
+
+.pf-password-toggle:hover {
+  color: #334155;
+}
+
+/* ── Checkbox & Forgot Password ── */
+.pf-options-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  margin-top: -0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.pf-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #334155;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+}
+
+.pf-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: #2563eb;
+  cursor: pointer;
+}
+
+.pf-forgot-link {
+  color: #1e293b;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.pf-forgot-link:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+/* ── Submit Button ── */
+.pf-submit-btn {
+  width: 100%;
+  padding: 0.88rem 1.5rem;
+  border-radius: 9999px;
+  border: none;
+  background: #e2e8f0;
+  color: #94a3b8;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.25s ease;
+  font-family: inherit;
+  margin-top: 0.5rem;
+}
+
+.pf-submit-btn i {
+  font-size: 1.1rem;
+  transition: transform 0.2s ease;
+}
+
+.pf-submit-btn.ready {
+  background: #0f172a;
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(15, 23, 42, 0.25);
+}
+
+.pf-submit-btn.ready:hover:not(:disabled) {
+  background: #1e293b;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.35);
+}
+
+.pf-submit-btn.ready:hover i {
+  transform: translateX(3px);
+}
+
+/* ── Security Footnote ── */
+.pf-security-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  font-size: 0.78rem;
+  color: #64748b;
+  font-weight: 500;
+  margin-top: 1.5rem;
+}
+
+.pf-security-notice i {
+  font-size: 0.95rem;
+  color: #64748b;
+}
+
+.pf-dot {
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+
+/* ── Demo Credentials Bar ── */
+.pf-demo-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px dashed #e2e8f0;
+  font-size: 0.78rem;
+}
+
+.pf-demo-label {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.pf-demo-pill {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.pf-demo-pill:hover {
+  background: #eef2ff;
+  color: #4f46e5;
+  border-color: #a5b4fc;
+}
+
+/* ── Responsive Media Queries ── */
+@media (max-width: 960px) {
+  .pf-login-container {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  .pf-hero-col {
+    padding-right: 0;
+    align-items: center;
+    text-align: center;
+  }
+  .pf-hero-heading {
+    font-size: 2.4rem;
+  }
+  .pf-feature-pills {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .pf-illustration-wrapper {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .pf-login-page {
+    padding: 1.5rem 1rem;
+  }
+  .pf-card {
+    padding: 2rem 1.5rem;
+    border-radius: 22px;
+  }
+  .pf-hero-heading {
+    font-size: 2rem;
+  }
+}

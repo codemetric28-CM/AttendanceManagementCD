@@ -10,14 +10,20 @@ const router = express.Router();
 router.post('/login', async (req, res) => {
   try {
     const data = req.body || {};
-    const email = (data.email || '').trim().toLowerCase();
+    const identifier = (data.email || data.employee_id || data.identifier || '').trim();
     const password = (data.password || '').trim();
 
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required' });
+    if (!identifier || !password) {
+      return res.status(400).json({ error: 'ID/Email and password are required' });
     }
 
-    let user = await User.findOne({ email });
+    const emailQuery = identifier.toLowerCase();
+    let user = await User.findOne({
+      $or: [
+        { email: emailQuery },
+        { employee_id: { $regex: new RegExp(`^${identifier}$`, 'i') } }
+      ]
+    });
 
     if (!user) {
       try {
@@ -25,11 +31,16 @@ router.post('/login', async (req, res) => {
       } catch (e) {
         console.log(`Auto-seed exception: ${e.message}`);
       }
-      user = await User.findOne({ email });
+      user = await User.findOne({
+        $or: [
+          { email: emailQuery },
+          { employee_id: { $regex: new RegExp(`^${identifier}$`, 'i') } }
+        ]
+      });
     }
 
     if (!user || !(await bcrypt.compare(password, user.password_hash))) {
-      return res.status(401).json({ error: 'Invalid email or password' });
+      return res.status(401).json({ error: 'Invalid ID/email or password' });
     }
 
     const token = generateToken(user._id.toString(), user.role, user.email, user.name);
