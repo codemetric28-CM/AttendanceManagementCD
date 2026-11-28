@@ -18,6 +18,19 @@ function parseTime(str) {
   return str.includes(' ') ? str.split(' ')[1].slice(0, 5) : str.slice(0, 5);
 }
 
+function getIstNowParts() {
+  const ist = new Date(Date.now() + 5.5 * 60 * 60 * 1000);
+  return {
+    year: ist.getUTCFullYear(),
+    month: ist.getUTCMonth(), // 0-11
+    day: ist.getUTCDate()
+  };
+}
+
+function formatYearMonth(year, month) {
+  return `${year}-${String(month + 1).padStart(2, '0')}`;
+}
+
 export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -27,6 +40,9 @@ export default function Dashboard() {
   const [activeBreak, setActiveBreak] = useState(null);
   const [todayBreaks, setTodayBreaks] = useState([]);
   const [monthlyStats, setMonthlyStats] = useState({});
+  const [prevMonthStats, setPrevMonthStats] = useState(null);
+  const [monthHistory, setMonthHistory] = useState([]);
+  const [monthLoading, setMonthLoading] = useState(false);
   const [pendingLeaves, setPendingLeaves] = useState(0);
   const [adminStats, setAdminStats]   = useState(null);
   const [leaveHistory, setLeaveHistory] = useState([]);
@@ -34,11 +50,44 @@ export default function Dashboard() {
   const [dateLabel, setDateLabel]     = useState('');
   const [breakTimer, setBreakTimer]   = useState('00:00');
   const [viewMonth, setViewMonth]     = useState(() => {
-    const n = new Date(); return { year: n.getFullYear(), month: n.getMonth() };
+    const { year, month } = getIstNowParts();
+    return { year, month };
   });
   const breakStartRef = useRef(null);
+  const viewMonthRef = useRef(viewMonth);
+  viewMonthRef.current = viewMonth;
 
   // ── Data Loading ──
+  const loadMonthHistory = async (year, month) => {
+    setMonthLoading(true);
+    try {
+      const monthStr = formatYearMonth(year, month);
+      const res = await apiFetch(`/api/employee/history?month=${monthStr}`);
+      setMonthHistory(res.history || []);
+    } catch {
+      setMonthHistory([]);
+    } finally {
+      setMonthLoading(false);
+    }
+  };
+
+  const loadPrevMonthStats = async () => {
+    try {
+      const { year, month } = getIstNowParts();
+      const prevDate = new Date(Date.UTC(year, month - 1, 1));
+      const prevStr = formatYearMonth(prevDate.getUTCFullYear(), prevDate.getUTCMonth());
+      const res = await apiFetch(`/api/employee/history?month=${prevStr}`);
+      const rows = res.history || [];
+      setPrevMonthStats({
+        present_days: rows.filter((a) => ['Present', 'Late'].includes(a.status)).length,
+        late_days: rows.filter((a) => a.status === 'Late').length,
+        total_net_hours: rows.reduce((s, a) => s + (a.net_hours || 0), 0)
+      });
+    } catch {
+      setPrevMonthStats(null);
+    }
+  };
+
   const loadEmployee = async () => {
     try {
       const data = await apiFetch('/api/employee/dashboard-summary');
@@ -83,10 +132,24 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
+    if (!user) return;
     loadEmployee();
     loadLeaveHistory();
+    loadPrevMonthStats();
     if (isAdmin) loadAdmin();
-  }, [user]);
+
+    const refreshId = setInterval(() => {
+      loadEmployee();
+      loadLeaveHistory();
+      loadMonthHistory(viewMonthRef.current.year, viewMonthRef.current.month);
+      if (isAdmin) loadAdmin();
+    }, 30000);
+    return () => clearInterval(refreshId);
+  }, [user, isAdmin]);
+
+  useEffect(() => {
+    if (user) loadMonthHistory(viewMonth.year, viewMonth.month);
+  }, [user, viewMonth.year, viewMonth.month]);
 
   // ── Actions ──
   const handleCheckIn = async () => {
@@ -94,6 +157,7 @@ export default function Dashboard() {
       const res = await apiFetch('/api/employee/check-in', { method: 'POST' });
       showToast(res.message, res.is_late ? 'warning' : 'success');
       loadEmployee();
+      loadMonthHistory(viewMonth.year, viewMonth.month);
     } catch (err) { showToast(err.message, 'danger'); }
   };
 
@@ -103,6 +167,7 @@ export default function Dashboard() {
       const res = await apiFetch('/api/employee/check-out', { method: 'POST' });
       showToast(res.message, 'success');
       loadEmployee();
+      loadMonthHistory(viewMonth.year, viewMonth.month);
     } catch (err) { showToast(err.message, 'danger'); }
   };
 
@@ -128,16 +193,47 @@ export default function Dashboard() {
   const shiftStatus = !checkedIn ? 'Not Started' : checkedOut ? 'Completed' : activeBreak ? 'On Break' : 'Working';
   const shiftStatusColor = { 'Working': '#10b981', 'On Break': '#f59e0b', 'Completed': '#6366f1', 'Not Started': '#94a3b8' };
 
-  // Monthly overview data (from monthly stats)
+  // Monthly overview data (computed from real attendance records & calendar)
   const monthLabel = new Date(viewMonth.year, viewMonth.month).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
   const totalDays = new Date(viewMonth.year, viewMonth.month + 1, 0).getDate();
+  const istNow = getIstNowParts();
+  const isCurrentViewMonth = viewMonth.year === istNow.year && viewMonth.month === istNow.month;
+  const isFutureViewMonth =
+    viewMonth.year > istNow.year || (viewMonth.year === istNow.year && viewMonth.month > istNow.month);
+  const elapsedDays = isFutureViewMonth ? 0 : isCurrentViewMonth ? istNow.day : totalDays;
+
+  let weeklyOffDays = 0;
+  for (let d = 1; d <= elapsedDays; d++) {
+    const dow = new Date(viewMonth.year, viewMonth.month, d).getDay();
+    if (dow === 0 || dow === 6) weeklyOffDays++;
+  }
+
+  const presentOnlyDays = monthHistory.filter((a) => a.status === 'Present').length;
+  const lateDays = monthHistory.filter((a) => a.status === 'Late').length;
+  const halfDays = monthHistory.filter((a) => a.status === 'Half Day').length;
+  const onLeaveDays = monthHistory.filter((a) => a.status === 'On Leave').length;
+  const absentDays = monthHistory.filter((a) => a.status === 'Absent').length;
+
   const attendanceBars = [
-    { label: 'Present', value: monthlyStats.present_days || 0, total: totalDays, color: '#10b981' },
-    { label: 'Late',    value: monthlyStats.late_days || 0,    total: totalDays, color: '#f59e0b' },
-    { label: 'Absent',  value: 0,                               total: totalDays, color: '#ef4444' },
-    { label: 'Holiday', value: monthlyStats.half_days || 0,    total: totalDays, color: '#8b5cf6' },
-    { label: 'Weekly Off', value: 0,                            total: totalDays, color: '#94a3b8' },
+    { label: 'Present',    value: presentOnlyDays, total: totalDays, color: '#10b981' },
+    { label: 'Late',       value: lateDays,        total: totalDays, color: '#f59e0b' },
+    { label: 'Half Day',   value: halfDays,        total: totalDays, color: '#8b5cf6' },
+    { label: 'On Leave',   value: onLeaveDays,     total: totalDays, color: '#3b82f6' },
+    { label: 'Absent',     value: absentDays,      total: totalDays, color: '#ef4444' },
+    { label: 'Weekly Off', value: weeklyOffDays,   total: totalDays, color: '#94a3b8' },
   ];
+
+  const formatDelta = (curr, prev, unit = '') => {
+    if (!prevMonthStats) return <span>this month</span>;
+    const diff = Number((curr - prev).toFixed(1));
+    if (diff === 0) return <span>same as last month</span>;
+    const sign = diff > 0 ? '↑' : '↓';
+    return (
+      <>
+        {sign} {Math.abs(diff)}{unit} <span>vs last month</span>
+      </>
+    );
+  };
 
   // Admin charts
   const monthlyChart = adminStats ? {
@@ -284,7 +380,9 @@ export default function Dashboard() {
           <div className="cm-stat-body">
             <div className="cm-stat-val">{monthlyStats.present_days || 0}</div>
             <div className="cm-stat-lbl">Days Present</div>
-            <div className="cm-stat-trend up">↑ 2% <span>vs last month</span></div>
+            <div className="cm-stat-trend up">
+              {formatDelta(monthlyStats.present_days || 0, prevMonthStats?.present_days || 0)}
+            </div>
           </div>
         </div>
         <div className="cm-stat">
@@ -294,7 +392,9 @@ export default function Dashboard() {
           <div className="cm-stat-body">
             <div className="cm-stat-val">{monthlyStats.late_days || 0}</div>
             <div className="cm-stat-lbl">Late Arrivals</div>
-            <div className="cm-stat-trend up">↑ 2% <span>vs last month</span></div>
+            <div className="cm-stat-trend up">
+              {formatDelta(monthlyStats.late_days || 0, prevMonthStats?.late_days || 0)}
+            </div>
           </div>
         </div>
         <div className="cm-stat">
@@ -302,9 +402,11 @@ export default function Dashboard() {
             <i className="ri-timer-line"></i>
           </div>
           <div className="cm-stat-body">
-            <div className="cm-stat-val">{(monthlyStats.total_net_hours || 0).toFixed(0)}h</div>
+            <div className="cm-stat-val">{(monthlyStats.total_net_hours || 0).toFixed(1)}h</div>
             <div className="cm-stat-lbl">Total Net Hours</div>
-            <div className="cm-stat-trend up">↑ 5% <span>vs last month</span></div>
+            <div className="cm-stat-trend up">
+              {formatDelta(monthlyStats.total_net_hours || 0, prevMonthStats?.total_net_hours || 0, 'h')}
+            </div>
           </div>
         </div>
         <div className="cm-stat">
@@ -327,7 +429,13 @@ export default function Dashboard() {
           <div className="cm-card-topbar" style={{ marginBottom: '0.4rem' }}>
             <div>
               <div className="cm-card-title">Monthly Attendance Overview</div>
-              <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: '2px' }}>Your attendance summary for the current month</div>
+              <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: '2px' }}>
+                {monthLoading
+                  ? `Loading ${monthLabel}...`
+                  : isCurrentViewMonth
+                    ? `Your live attendance summary for ${monthLabel}`
+                    : `Attendance summary for ${monthLabel}`}
+              </div>
             </div>
             <div className="cm-month-nav">
               <button onClick={() => setViewMonth(p => { const d = new Date(p.year, p.month - 1); return { year: d.getFullYear(), month: d.getMonth() }; })}>‹</button>
