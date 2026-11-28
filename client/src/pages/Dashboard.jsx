@@ -49,6 +49,7 @@ export default function Dashboard() {
   const [clock, setClock]             = useState('');
   const [dateLabel, setDateLabel]     = useState('');
   const [breakTimer, setBreakTimer]   = useState('00:00');
+  const [nowMs, setNowMs]             = useState(() => Date.now());
   const [viewMonth, setViewMonth]     = useState(() => {
     const { year, month } = getIstNowParts();
     return { year, month };
@@ -119,6 +120,7 @@ export default function Dashboard() {
   useEffect(() => {
     const tick = () => {
       const now = new Date();
+      setNowMs(now.getTime());
       setClock(now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit' }));
       setDateLabel(now.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }));
       if (breakStartRef.current) {
@@ -192,6 +194,20 @@ export default function Dashboard() {
   const checkedOut = !!(today?.check_out);
   const shiftStatus = !checkedIn ? 'Not Started' : checkedOut ? 'Completed' : activeBreak ? 'On Break' : 'Working';
   const shiftStatusColor = { 'Working': '#10b981', 'On Break': '#f59e0b', 'Completed': '#6366f1', 'Not Started': '#94a3b8' };
+
+  let todayNetWorkingDisplay = '0.00 hrs';
+  if (checkedOut) {
+    todayNetWorkingDisplay = `${Number(today?.net_hours || 0).toFixed(2)} hrs`;
+  } else if (checkedIn && today?.check_in) {
+    const checkInMs = new Date(today.check_in.replace(' ', 'T') + '+05:30').getTime();
+    const completedBreakMs = (today.break_duration_mins || 0) * 60000;
+    const ongoingBreakMs = breakStartRef.current ? Math.max(0, nowMs - breakStartRef.current.getTime()) : 0;
+    const netMs = Math.max(0, nowMs - checkInMs - completedBreakMs - ongoingBreakMs);
+    const totalMins = Math.floor(netMs / 60000);
+    const hrs = Math.floor(totalMins / 60);
+    const mins = totalMins % 60;
+    todayNetWorkingDisplay = `${hrs}h ${String(mins).padStart(2, '0')}m`;
+  }
 
   // Monthly overview data (computed from real attendance records & calendar)
   const monthLabel = new Date(viewMonth.year, viewMonth.month).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
@@ -276,7 +292,7 @@ export default function Dashboard() {
             </button>
           </div>
 
-          <div className="cm-shift-meta">
+          {/* <div className="cm-shift-meta">
             <div className="cm-shift-meta-item">
               <i className="ri-file-list-3-line" style={{ color: '#f59e0b' }}></i>
               <div>
@@ -291,7 +307,47 @@ export default function Dashboard() {
                 <div className="cm-meta-value">10:00 AM – 07:00 PM</div>
               </div>
             </div>
-          </div>
+          </div> */}
+
+<div className="cm-shift-meta">
+  <div className="cm-shift-meta-item">
+    <i className="ri-login-box-line" style={{ color: '#f59e0b' }}></i>
+    <div>
+      <div className="cm-meta-label">Checked In Time</div>
+      <div className="cm-meta-value">
+        {today?.check_in ? parseTime(today.check_in) : '--:--'}
+      </div>
+    </div>
+  </div>
+
+  <div className="cm-shift-meta-item">
+    <i className="ri-logout-box-r-line" style={{ color: '#ef4444' }}></i>
+    <div>
+      <div className="cm-meta-label">Checked Out Time</div>
+      <div className="cm-meta-value">
+        {today?.check_out ? parseTime(today.check_out) : '--:--'}
+      </div>
+    </div>
+  </div>
+
+  <div className="cm-shift-meta-item">
+    <i className="ri-calendar-schedule-line" style={{ color: '#6366f1' }}></i>
+    <div>
+      <div className="cm-meta-label">Shift Timing</div>
+      <div className="cm-meta-value">10:00 AM – 07:00 PM</div>
+    </div>
+  </div>
+
+  <div className="cm-shift-meta-item">
+    <i className="ri-timer-line" style={{ color: '#10b981' }}></i>
+    <div>
+      <div className="cm-meta-label">Total Net Working Hours</div>
+      <div className="cm-meta-value" style={{ color: checkedIn && !checkedOut ? '#10b981' : '#0f172a' }}>
+        {todayNetWorkingDisplay}
+      </div>
+    </div>
+  </div>
+</div>
 
           {/* Active break banner */}
           {activeBreak && (
